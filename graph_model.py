@@ -19,12 +19,12 @@ from langchain_core.runnables import RunnableConfig
 
 
 class ClaryState(TypedDict):
-    mode            : str                                        # "chat" | "patterns"
-    history_context : str                                        # full patient history
+    mode            : str                                        
+    history_context : str                                        
     user_name       : str
-    messages        : Annotated[list[BaseMessage], operator.add] # auto-accumulated
-    patterns_result : Any                                        # dict or PatternOutput
-    # filled by pattern_node
+    messages        : Annotated[list[BaseMessage], operator.add] 
+    patterns_result : Any                                      
+    
 
 
 CHAT_SYSTEM_TEMPLATE = """\
