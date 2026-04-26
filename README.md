@@ -38,7 +38,7 @@ This repository contains the reasoning layer built for the Ask First AI Intern A
    ```env
    AZURE_OPENAI_API_KEY=your_key_here
    AZURE_ENDPOINT=your_endpoint_here
-   AZURE_DEPLOYMENT=gpt-4o-mini
+   AZURE_DEPLOYMENT=gpt-4.1-mini
    AZURE_API_VERSION=2024-02-15-preview
    ```
 
