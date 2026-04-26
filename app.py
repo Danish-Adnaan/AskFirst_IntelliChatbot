@@ -8,7 +8,7 @@ import json
 import os
 from datetime import datetime
 
-# ── Page config (must be first Streamlit call) ─────────────────────────────────
+
 st.set_page_config(
     page_title = "Ask First · Clary",
     page_icon  = "🩺",
@@ -16,7 +16,7 @@ st.set_page_config(
     initial_sidebar_state = "expanded",
 )
 
-# ── CSS ────────────────────────────────────────────────────────────────────────
+
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
@@ -177,17 +177,17 @@ dataset    = _load()
 user_names = get_user_names(dataset)
 
 # ── Session state init ─────────────────────────────────────────────────────────
-if "chat_messages"  not in st.session_state:   st.session_state.chat_messages  = {}  # {user_name: [{role,content}]}
-if "pattern_cache"  not in st.session_state:   st.session_state.pattern_cache  = {}  # {user_name: result_dict}
+if "chat_messages"  not in st.session_state:   st.session_state.chat_messages  = {}  
+if "pattern_cache"  not in st.session_state:   st.session_state.pattern_cache  = {}  
 if "graph_ready"    not in st.session_state:
-    get_graph()                                                                         # warm up singleton
+    get_graph()                                                                      
     st.session_state.graph_ready = True
 
 def get_api_key():
     try:    return st.secrets["AZURE_OPENAI_API_KEY"]
     except: pass
     
-    # Check standard name, fallback to local 'api_key' in .env
+   
     key = os.environ.get("AZURE_OPENAI_API_KEY", "")
     if not key:
         key = os.environ.get("api_key", "")
