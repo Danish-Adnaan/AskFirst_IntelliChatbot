@@ -5,10 +5,6 @@ import dotenv
 
 dotenv.load_dotenv()
 
-AZURE_ENDPOINT = os.getenv("AZURE_ENDPOINT", "")
-AZURE_DEPLOYMENT = os.getenv("AZURE_DEPLOYMENT", "")
-AZURE_API_VERSION = os.getenv("AZURE_API_VERSION", "")
-
 from typing import TypedDict, Annotated, Optional, List, Any
 from pydantic import BaseModel, Field
 
@@ -94,11 +90,29 @@ class PatternOutput(BaseModel):
     patterns: List[Pattern]
 
 
+def _get_azure_config() -> tuple[str, str, str]:
+    endpoint = os.getenv("AZURE_ENDPOINT", "").strip()
+    deployment = os.getenv("AZURE_DEPLOYMENT", "").strip()
+    api_version = os.getenv("AZURE_API_VERSION", "").strip()
+
+    if not endpoint:
+        raise ValueError("Missing AZURE_ENDPOINT. Set it in .env or Streamlit secrets.")
+    if not endpoint.startswith(("http://", "https://")):
+        raise ValueError("AZURE_ENDPOINT must start with http:// or https://")
+    if not deployment:
+        raise ValueError("Missing AZURE_DEPLOYMENT. Set it in .env or Streamlit secrets.")
+    if not api_version:
+        raise ValueError("Missing AZURE_API_VERSION. Set it in .env or Streamlit secrets.")
+
+    return endpoint, deployment, api_version
+
+
 def _make_llm(api_key: str, streaming: bool = False) -> AzureChatOpenAI:
+    endpoint, deployment, api_version = _get_azure_config()
     return AzureChatOpenAI(
-        azure_endpoint   = AZURE_ENDPOINT,
-        azure_deployment = AZURE_DEPLOYMENT,
-        api_version      = AZURE_API_VERSION,
+        azure_endpoint   = endpoint,
+        azure_deployment = deployment,
+        api_version      = api_version,
         api_key          = api_key,
         temperature      = 0.2,
         streaming        = streaming,

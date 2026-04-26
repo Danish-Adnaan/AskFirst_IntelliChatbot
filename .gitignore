@@ -1,23 +1,18 @@
-# Secrets and local environment files
 .env
 .env.*
 !.env.example
 
-# Streamlit secrets
 .streamlit/secrets.toml
 
-# Common private key / cert artifacts
 *.pem
 *.key
 *.p12
 *.pfx
 *.crt
 
-# Python cache
 __pycache__/
 *.py[cod]
 
-# Local runtime database/state
 checkpoints.db
 checkpoints.db-shm
 checkpoints.db-wal

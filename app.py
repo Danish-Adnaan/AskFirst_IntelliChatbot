@@ -142,6 +142,28 @@ html, body, [data-testid="stApp"] {
 </style>
 """, unsafe_allow_html=True)
 
+
+def _bootstrap_env_from_streamlit_secrets() -> None:
+    try:
+        secrets = st.secrets
+    except Exception:
+        return
+
+    mapping = {
+        "AZURE_ENDPOINT": "AZURE_ENDPOINT",
+        "AZURE_DEPLOYMENT": "AZURE_DEPLOYMENT",
+        "AZURE_API_VERSION": "AZURE_API_VERSION",
+        "AZURE_OPENAI_API_KEY": "AZURE_OPENAI_API_KEY",
+        "api_key": "api_key",
+    }
+    for secret_key, env_key in mapping.items():
+        value = secrets.get(secret_key)
+        if value and not os.environ.get(env_key):
+            os.environ[env_key] = str(value)
+
+
+_bootstrap_env_from_streamlit_secrets()
+
 # ── Imports (after config) ─────────────────────────────────────────────────────
 from data_utils  import load_dataset, get_user, get_user_names, build_history_context, week_num
 from graph_model import stream_chat_response, run_pattern_analysis, get_graph
