@@ -1,4 +1,4 @@
-# Ask First — Clary · AI Health Reasoning Engine
+# Ask First - Clary · AI Health Reasoning Engine
 
 Ask First is a health clarity platform. Clary is our AI companion that remembers user health history across conversations, identifies patterns over time, and connects dots users themselves don't notice.
 
