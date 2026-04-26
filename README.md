@@ -20,6 +20,10 @@ This repository contains the reasoning layer built for the Ask First AI Intern A
 - **Data Persistence**: SQLite (`SqliteSaver`)
 - **Validation**: Pydantic v2
 
+## Architecture Diagram
+<img width="4699" height="6568" alt="AskFirst Mermaid Diagram" src="https://github.com/user-attachments/assets/a8729fdc-0891-4861-aaf8-17521d90caf2" />
+
+
 ## 📦 Setup & Installation
 
 1. **Clone the repository**:
