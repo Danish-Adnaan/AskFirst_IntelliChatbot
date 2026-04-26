@@ -67,6 +67,8 @@ REASONING RULES:
   intervention confirmation (behaviour change → symptom change or absence).
 - 4+ consistent sessions = very high confidence.
 - 3 sessions = high. 2 sessions = medium. 1 session = low.
+- SEPARATE META-PATTERNS: If a root cause causes a specific long-term symptom (e.g. diet -> hair fall), log it. If that SAME root cause ALSO triggers a compounding cascade of multiple different symptoms over time (e.g. dizziness -> fatigue -> hair fall), log the cascade as a SEPARATE, distinct meta-pattern. Do not merge them!
+- Be exhaustive. A patient will typically have 2-4 distinct patterns.
 - Do NOT use vague language. Quote specific sessions and timestamps.
 """
 
@@ -98,7 +100,7 @@ def _make_llm(api_key: str, streaming: bool = False) -> AzureChatOpenAI:
         azure_deployment = AZURE_DEPLOYMENT,
         api_version      = AZURE_API_VERSION,
         api_key          = api_key,
-        temperature      = 0.3,
+        temperature      = 0.2,
         streaming        = streaming,
         max_tokens       = 4096,
     )

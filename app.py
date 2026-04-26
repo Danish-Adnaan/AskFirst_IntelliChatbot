@@ -162,11 +162,14 @@ if "graph_ready"    not in st.session_state:
     st.session_state.graph_ready = True
 
 def get_api_key():
-    if st.session_state.get("api_key_input", "").strip():
-        return st.session_state["api_key_input"].strip()
     try:    return st.secrets["AZURE_OPENAI_API_KEY"]
     except: pass
-    return os.environ.get("AZURE_OPENAI_API_KEY", "")
+    
+    # Check standard name, fallback to local 'api_key' in .env
+    key = os.environ.get("AZURE_OPENAI_API_KEY", "")
+    if not key:
+        key = os.environ.get("api_key", "")
+    return key
 
 def thread_id(user_name: str, mode: str) -> str:
     return f"{user_name}_{mode}"
@@ -179,20 +182,6 @@ def confidence_badge(conf: str) -> str:
 with st.sidebar:
     st.markdown('<div class="brand">Ask<span>First</span></div>', unsafe_allow_html=True)
     st.markdown('<div class="brand-sub">Clary · Health Reasoning Engine</div>', unsafe_allow_html=True)
-    st.divider()
-
-    api_key = st.text_input(
-        "🔑 Azure OpenAI API Key",
-        type="password",
-        key="api_key_input",
-        placeholder="Enter your key…",
-        help="Key is not stored — used only in this session.",
-    )
-    if api_key:
-        st.success("Key loaded ✓", icon="✅")
-    else:
-        st.info("Enter your Azure OpenAI key to enable Clary.")
-
     st.divider()
 
     selected_user = st.selectbox("👤 Select Patient", user_names, key="selected_user")
@@ -265,7 +254,7 @@ with tab_chat:
     # Input
     if prompt := st.chat_input(f"Ask Clary about {selected_user}'s health…"):
         if not get_api_key():
-            st.error("Please enter your Azure OpenAI API key in the sidebar.")
+            st.error("System API key missing. Please configure it in Streamlit Secrets.")
             st.stop()
 
         # Add to history
@@ -319,7 +308,7 @@ with tab_patterns:
     )
 
     if not get_api_key():
-        st.warning("Enter your Azure OpenAI key in the sidebar to run analysis.")
+        st.warning("System API key missing. Please configure it in Streamlit Secrets.")
 
     # Run or load from cache
     if run_btn and get_api_key():
