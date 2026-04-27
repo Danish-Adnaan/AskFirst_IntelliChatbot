@@ -6,7 +6,10 @@ LangGraph-powered health reasoning engine with cross-session temporal pattern de
 import streamlit as st
 import json
 import os
-from datetime import datetime
+from dotenv import load_dotenv
+
+# Load environment variables from .env file for local development
+load_dotenv()
 
 
 st.set_page_config(
@@ -16,15 +19,19 @@ st.set_page_config(
     initial_sidebar_state = "expanded",
 )
 
-
+# ── CSS ────────────────────────────────────────────────────────────────────────
+# Custom styling for light theme (theme enforced via .streamlit/config.toml)
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
 html, body, [data-testid="stApp"] {
     font-family: 'Inter', sans-serif !important;
-    background: #f7f6f2 !important;
-    color: #28251d !important;
+}
+
+:root {
+    --af-green-1: #01696f;
+    --af-green-2: #039ba4;
 }
 
 /* ── Brand ── */
@@ -133,6 +140,24 @@ html, body, [data-testid="stApp"] {
 [data-testid="stTab"] button {
     font-weight:600; font-size:0.88rem;
 }
+[data-testid="stTab"] button:hover,
+[data-testid="stTab"] button[aria-selected="true"] {
+    color: var(--af-green-1) !important;
+    border-bottom-color: var(--af-green-2) !important;
+}
+
+/* ── Green gradient hover accents ── */
+[data-testid="stButton"] button:hover,
+[data-testid="stButton"] button:focus-visible {
+    background: linear-gradient(135deg, var(--af-green-1) 0%, var(--af-green-2) 100%) !important;
+    border-color: transparent !important;
+    color: #ffffff !important;
+}
+[data-testid="stChatInput"] textarea:hover,
+[data-testid="stChatInput"] textarea:focus {
+    border-color: var(--af-green-2) !important;
+    box-shadow: 0 0 0 1px rgba(3, 155, 164, 0.2) !important;
+}
 
 /* ── Metric ── */
 [data-testid="stMetric"] {
@@ -144,22 +169,29 @@ html, body, [data-testid="stApp"] {
 
 
 def _bootstrap_env_from_streamlit_secrets() -> None:
+    """Load secrets from Streamlit secrets.toml, fallback to .env for local dev"""
     try:
-        secrets = st.secrets
+        # Try to get secrets from Streamlit (only if secrets.toml exists)
+        if hasattr(st, "secrets") and st.secrets:
+            secrets = st.secrets
+            mapping = {
+                "AZURE_ENDPOINT": "AZURE_ENDPOINT",
+                "AZURE_DEPLOYMENT": "AZURE_DEPLOYMENT",
+                "AZURE_API_VERSION": "AZURE_API_VERSION",
+                "AZURE_OPENAI_API_KEY": "AZURE_OPENAI_API_KEY",
+                "api_key": "api_key",
+            }
+            for secret_key, env_key in mapping.items():
+                try:
+                    value = secrets.get(secret_key)
+                    if value and not os.environ.get(env_key):
+                        os.environ[env_key] = str(value)
+                except Exception:
+                    # Silently skip if secret key not found
+                    pass
     except Exception:
-        return
-
-    mapping = {
-        "AZURE_ENDPOINT": "AZURE_ENDPOINT",
-        "AZURE_DEPLOYMENT": "AZURE_DEPLOYMENT",
-        "AZURE_API_VERSION": "AZURE_API_VERSION",
-        "AZURE_OPENAI_API_KEY": "AZURE_OPENAI_API_KEY",
-        "api_key": "api_key",
-    }
-    for secret_key, env_key in mapping.items():
-        value = secrets.get(secret_key)
-        if value and not os.environ.get(env_key):
-            os.environ[env_key] = str(value)
+        # Secrets not available, .env will be used via load_dotenv()
+        pass
 
 
 _bootstrap_env_from_streamlit_secrets()
@@ -184,10 +216,17 @@ if "graph_ready"    not in st.session_state:
     st.session_state.graph_ready = True
 
 def get_api_key():
-    try:    return st.secrets["AZURE_OPENAI_API_KEY"]
-    except: pass
-    
-   
+    """Get API key from Streamlit secrets or .env file"""
+    try:
+        # Try Streamlit secrets first; if missing/empty, fall back to .env/env vars
+        if hasattr(st, "secrets"):
+            secret_key = st.secrets.get("AZURE_OPENAI_API_KEY", "")
+            if secret_key:
+                return secret_key
+    except Exception:
+        pass
+
+    # Fallback to environment variables (from .env or system)
     key = os.environ.get("AZURE_OPENAI_API_KEY", "")
     if not key:
         key = os.environ.get("api_key", "")
